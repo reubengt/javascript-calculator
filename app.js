@@ -1,9 +1,8 @@
 let resultValue='0';
 let expressionValue="";
-let firstOperand=null;
-let secondOperand=null;
-let operator=null;
 let operatorEntered=false;
+let equalsEntered=false;
+let minusEntered=false;
 let buttons=document.querySelector(".buttons");
 buttons.addEventListener('click', buttonPress);
 updateResult();
@@ -17,6 +16,7 @@ function buttonPress(e){
   if(target.classList.contains('number')){
     inputDigit(target.textContent);
     operatorEntered=false;
+    minusEntered=false;
     updateResult();
     updateExpression();
     return;
@@ -37,11 +37,26 @@ function buttonPress(e){
   }
   if(target.classList.contains('operator')){
     if(target.classList.contains('minus')){
-      if(resultValue.includes('-')==false || operatorEntered==true){
+      if(resultValue==='0' && minusEntered===false){
         inputMinus(target.textContent);
         updateResult();
         updateExpression();
         return;
+      }
+      else
+      {
+        console.log(operatorEntered);
+        if(expressionValue==="" || operatorEntered===true)
+        {
+          return;
+        }
+        else
+        {
+          inputOperator(target.textContent);
+          updateExpression();
+          minusEntered=true;
+          return;
+        }
       }
     }
     else{
@@ -53,9 +68,15 @@ function buttonPress(e){
       {
         inputOperator(target.textContent);
         updateExpression();
+        minusEntered=false;
         return;
       }
     }
+  }
+  if(target.classList.contains('equals')){
+    inputEquals();
+    updateResult();
+    return;
   }
 }
 //functions to update display
@@ -77,19 +98,19 @@ function inputDigit(input) {
     resultValue=resultValue === '0' ? input : resultValue + input;
     expressionValue=expressionValue === "" ? input : expressionValue + input;
   }
-  console.log(resultValue);
 }
 function inputOperator(input){
+  console.log('inputOperator executed');
   operatorEntered=true;
-  operator=input;
   expressionValue+=input;
   resultValue='0';
+  console.log(operatorEntered);
 }
 function inputMinus(input){
+  console.log('inputMinus executed');
   if(operatorEntered==true){
     resultValue=input;
     expressionValue+=input;
-    operatorEntered=false;
   }
   else{
     resultValue=resultValue=== '0' ? input : resultValue + input;
@@ -110,4 +131,11 @@ function inputPoint(input){
 function inputClear(){
   resultValue='0';
   expressionValue="";
+}
+function inputEquals(){
+  if(equalsEntered===false)
+  {
+  resultValue=eval(expressionValue);
+  expressionValue=resultValue;
+  }
 }
