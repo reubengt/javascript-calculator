@@ -38,21 +38,20 @@ function buttonPress(e){
   if(target.classList.contains('operator')){
     if(target.classList.contains('minus')){
       if(resultValue==='0' && minusEntered===false){
-        inputMinus(target.textContent);
+        inputMinus(target.value);
         updateResult();
         updateExpression();
         return;
       }
       else
       {
-        console.log(operatorEntered);
         if(expressionValue==="" || operatorEntered===true)
         {
           return;
         }
         else
         {
-          inputOperator(target.textContent);
+          inputOperator(target.value);
           updateExpression();
           minusEntered=true;
           return;
@@ -66,7 +65,7 @@ function buttonPress(e){
       }
       else
       {
-        inputOperator(target.textContent);
+        inputOperator(target.value);
         updateExpression();
         minusEntered=false;
         return;
@@ -86,7 +85,7 @@ function updateResult() {
 }
 function updateExpression(){
   const expression = document.querySelector(".expression");
-  expression.textContent = expressionValue;
+  expression.textContent = expressionValue.replace("/","÷").replace("*","×");
 }
 //functions to handle various inputs
 function inputDigit(input) {
@@ -124,7 +123,7 @@ function inputPoint(input){
     operatorEntered=false;
   }
   else{
-    resultValue=resultValue=== '0' ? input : resultValue + input;
+    resultValue+=input;
     expressionValue+=input;
   }
 }
@@ -135,7 +134,7 @@ function inputClear(){
 function inputEquals(){
   if(equalsEntered===false)
   {
-  resultValue=eval(expressionValue);
+  resultValue=Math.round(eval(expressionValue)*(10**6))/(10**6).toString();
   expressionValue=resultValue;
   }
 }
