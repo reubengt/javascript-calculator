@@ -1,5 +1,6 @@
 let resultValue='0';
 let expressionValue="";
+let lastOperation="";
 let operatorEntered=false;
 let equalsEntered=false;
 let minusEntered=false;
@@ -13,6 +14,7 @@ function buttonPress(e){
   if (!target.matches('button')){
     return;
   }
+  //conditions to handle various input cases. these point to functions further down the code.
   if(target.classList.contains('number')){
     inputDigit(target.textContent);
     operatorEntered=false;
@@ -22,7 +24,7 @@ function buttonPress(e){
     return;
   }
   if(target.classList.contains('point')){
-    if(resultValue.includes('.')==false || operatorEntered==true){
+    if(resultValue.includes('.')===false || operatorEntered===true){
       inputPoint(target.textContent);
       updateResult();
       updateExpression();
@@ -36,19 +38,24 @@ function buttonPress(e){
     return;
   }
   if(target.classList.contains('operator')){
+    //separate set of conditions for minus to be entered both for subtraction and for negative number entry
     if(target.classList.contains('minus')){
+      //if an operator other than minus has been entered(resultValue resets to 0), or if the screen is blank and a minus is entered, it is treated as the sign of a negative number
       if(resultValue==='0' && minusEntered===false){
         inputMinus(target.value);
         updateResult();
         updateExpression();
         return;
-      }
+       }
+      //conditios to treat minus as an operator
       else
-      {
+       {
+         //if an operator has already been entered, or the expression is empty, exit.
         if(expressionValue==="" || operatorEntered===true)
         {
           return;
         }
+        //treats minus like an operator and updates the expression but not the number being typed
         else
         {
           inputOperator(target.value);
@@ -56,8 +63,9 @@ function buttonPress(e){
           minusEntered=true;
           return;
         }
+       }
       }
-    }
+    //if the operator is not a minus sign
     else{
       if(expressionValue==="" || operatorEntered===true)
       {
@@ -72,54 +80,80 @@ function buttonPress(e){
       }
     }
   }
+  //runs function inputEquals, which calculates the result of the expression.
   if(target.classList.contains('equals')){
     inputEquals();
     updateResult();
     return;
   }
 }
-//functions to update display
+//function to update current number being typed. this area also displays the result when equals is pressed.
 function updateResult() {
   const result = document.querySelector(".result")
   result.textContent = resultValue;
 }
+//function to update the expression being typed. all operators will be displayed here.
 function updateExpression(){
   const expression = document.querySelector(".expression");
   expression.textContent = expressionValue.replace("/","÷").replace("*","×");
 }
-//functions to handle various inputs
+//function to handle digit input
 function inputDigit(input) {
-  if(operatorEntered==true){
+  //clears display if a digit is entered immediately after an expression is evaluated by pressing the equals button.
+  if(equalsEntered===true)
+  {
+    inputClear();
+    equalsEntered=false;
+    lastOperation="";
+  }
+  if(operatorEntered===true){
     resultValue=input;
     expressionValue+=input;
+    lastOperation+=input;
   }
   else{
     resultValue=resultValue === '0' ? input : resultValue + input;
     expressionValue=expressionValue === "" ? input : expressionValue + input;
+    lastOperation=resultValue === '0' ? "":lastOperation + input;
   }
 }
+//function to handle operator input
 function inputOperator(input){
-  console.log('inputOperator executed');
+  if(equalsEntered=true)
+  {
+    equalsEntered=false;
+    lastOperation="";
+  }
   operatorEntered=true;
   expressionValue+=input;
   resultValue='0';
-  console.log(operatorEntered);
+  lastOperation+=input;
 }
+//function to handle minus input(if it is to be used as a negative sign)
 function inputMinus(input){
-  console.log('inputMinus executed');
-  if(operatorEntered==true){
+  if(operatorEntered===true){
     resultValue=input;
     expressionValue+=input;
+    lastOperation+=input;
   }
   else{
     resultValue=resultValue=== '0' ? input : resultValue + input;
     expressionValue+=input;
   }
 }
+//function to handle decimal point input
 function inputPoint(input){
-  if(operatorEntered==true){
+  //clears display if a point is entered right after a calculation is evaluated by pressing equals.
+  if(equalsEntered===true)
+  {
+    inputClear();
+    equalsEntered=false;
+    lastOperation="";
+  }
+  if(operatorEntered===true){
     resultValue=input;
     expressionValue+=input;
+    lastOperation+=input;
     operatorEntered=false;
   }
   else{
@@ -127,14 +161,24 @@ function inputPoint(input){
     expressionValue+=input;
   }
 }
+//function to clear the screen when the AC button is pressed.
 function inputClear(){
   resultValue='0';
   expressionValue="";
 }
+//function to evaluate the expression when equals is pressed. also repeats the last performed operation when pressed repeaetedly.
 function inputEquals(){
   if(equalsEntered===false)
   {
+  console.log(lastOperation);
   resultValue=Math.round(eval(expressionValue)*(10**6))/(10**6).toString();
   expressionValue=resultValue;
   }
+  if(equalsEntered===true)
+  {
+    resultValue=Math.round(eval(expressionValue+lastOperation)*(10**6))/(10**6).toString();
+    expressionValue=resultValue;
+  }
+  equalsEntered=true;
 }
+//end of calculator. probably more complicated than it needs to be, but hey it works :D
